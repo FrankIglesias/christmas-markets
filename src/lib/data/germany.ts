@@ -1,4 +1,6 @@
-const GERM_MARKETS = [
+import type { Market } from '../types'
+
+export const GERM_MARKETS: Market[] = [
   // Tier 1 — Unmissable
   { name: "Nuremberg Christkindlesmarkt", flag: "🇩🇪", country: "Germany", city: "Nuremberg",
     lat: 49.4545, lng: 11.0775, region: "Germany & Austria classics",
@@ -91,4 +93,4 @@ const GERM_MARKETS = [
     rank: 17, tier: 4, trip: "~1.5 h by train",
     dates: "Advent weekends, late Nov – 20 Dec 2026", food: "Glühwein & Dampfnudeln",
     note: "Cozy lakeside market facing the Alps; modest but scenic." }
-];
+]

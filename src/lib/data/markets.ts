@@ -1,4 +1,6 @@
-const MARKETS = [
+import type { Market } from '../types'
+
+export const MARKETS: Market[] = [
   // ── Germany & Austria classics ─────────────────────────────────────────
   { name: "Nuremberg Christkindlesmarkt",
     rank: 2, flag: "🇩🇪", country: "Germany", city: "Nuremberg",
@@ -459,4 +461,4 @@ const MARKETS = [
     lat: 51.0543, lng: 3.7250, region: "Nordic & Benelux",
     dates: "Dec 2026 (TBC)", food: "Glühwein & cuberdons",
     note: "Charming canal-side setting; smaller and quieter than Bruges." },
-];
+]
