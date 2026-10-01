@@ -1,4 +1,64 @@
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Build output
 dist/
-.DS_Store
+build/
+.svelte-kit/
+.output/
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# TypeScript / Svelte incremental build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Environment / local secrets
+.env
+.env.*
+!.env.example
+
+# Local overrides
 *.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Test / coverage output
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# Caches
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.svelte-kit
+.turbo/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+*.swp
+*.swo
+*~
+
+# Vercel / Netlify
+.vercel
+.netlify
