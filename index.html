@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Europe's Best Christmas Markets</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --green: #34d399;
+    --red: #f87171;
+    --gold: #fbbf24;
+    --bg: #0b1220;
+    --card: #131c2e;
+    --border: #24304a;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+  header {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #fff; padding: 22px 28px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  header .tree { font-size: 34px; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; letter-spacing: 0.3px; }
+  header p { opacity: 0.85; font-size: 13px; margin-top: 3px; }
+  main { display: flex; height: calc(100vh - 84px); }
+  #sidebar {
+    width: 360px; overflow-y: auto; padding: 16px;
+    border-right: 1px solid var(--border); background: var(--bg); flex-shrink: 0;
+  }
+  #sidebar input[type="text"] {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 14px; margin-bottom: 12px; outline: none;
+    background: var(--card); color: var(--text);
+  }
+  #sidebar input[type="text"]::placeholder { color: var(--muted); }
+  #sidebar input[type="text"]:focus { border-color: var(--green); }
+  .market {
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+    margin-bottom: 10px; cursor: pointer; transition: all .15s ease;
+    background: var(--card);
+  }
+  .market:hover { border-color: var(--gold); box-shadow: 0 2px 10px rgba(0,0,0,.35); transform: translateY(-1px); }
+  .market .name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+  .market .name .flag { font-size: 13px; }
+  .market .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .market .dates { font-size: 12px; color: var(--green); margin-top: 4px; font-weight: 500; }
+  .market.visited { border-color: #16a34a; opacity: .8; }
+  .market.visited .name { text-decoration: line-through; text-decoration-color: var(--green); }
+  .market .v-tag { font-size: 11px; color: var(--green); font-weight: 600; margin-left: 6px; }
+  .filters { display: flex; gap: 8px; margin-bottom: 12px; }
+  .filters button {
+    flex: 1; padding: 8px 0; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--card); color: var(--muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s ease;
+  }
+  .filters button.active { border-color: var(--green); color: var(--green); background: #0f1a2e; }
+  .progress { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 12px; color: var(--muted); }
+  .progress .bar { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress .bar > div { height: 100%; background: var(--green); border-radius: 99px; transition: width .2s ease; }
+  .visit-btn {
+    margin-top: 8px; width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border);
+    background: #0f1a2e; color: var(--green); font-weight: 600; font-size: 12px; cursor: pointer;
+  }
+  .visit-btn:hover { border-color: var(--green); }
+  .p-done { color: var(--green); font-size: 13px; }
+  .p-trip { font-size: 12px; color: #7dd3fc; margin-top: 4px; }
+  .name-row { display: flex; align-items: center; gap: 8px; }
+  .rank-badge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; flex-shrink: 0; }
+  .t1 { background: #fbbf24; color: #0b1220; }
+  .t2 { background: #34d399; color: #0b1220; }
+  .t3 { background: #60a5fa; color: #0b1220; }
+  .t4 { background: #94a3b8; color: #0b1220; }
+  .t5 { background: #475569; color: #e5e7eb; }
+  .sort-row { display: flex; margin-bottom: 12px; }
+  .sort-row select {
+    flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--card); color: var(--text); font-size: 12px; outline: none;
+  }
+  #map { flex: 1; z-index: 0; background: var(--bg); }
+  .app-tabs { display: flex; gap: 8px; padding: 12px 16px 0; background: var(--bg); }
+  .app-tabs button { padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px 8px 0 0; background: var(--card); color: var(--muted); font-weight: 600; cursor: pointer; }
+  .app-tabs button.active { color: var(--green); border-color: var(--green); }
+  #calendar { flex: 1; overflow: auto; padding: 20px; background: var(--bg); }
+  .calendar-title { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 16px; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(3, minmax(280px, 1fr)); gap: 16px; }
+  .calendar-month { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .calendar-month h3 { color: var(--gold); margin-bottom: 10px; }
+  .calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+  .calendar-weekday { color: var(--muted); font-size: 10px; text-align: center; padding-bottom: 4px; }
+  .calendar-day { min-height: 74px; padding: 4px; border: 1px solid var(--border); border-radius: 4px; font-size: 10px; }
+  .calendar-day-number { color: var(--muted); font-weight: 600; }
+  .calendar-market { border-top: 1px solid var(--border); margin-top: 3px; padding-top: 3px; cursor: pointer; line-height: 1.2; }
+  .calendar-more { color: var(--green); font-weight: 600; margin-top: 4px; cursor: pointer; }
+  .calendar-day.has-markets { cursor: pointer; }
+  .calendar-day.has-markets:hover { border-color: var(--green); }
+  .calendar-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,.65); }
+  .calendar-modal[hidden] { display: none; }
+  .calendar-modal-card { width: min(520px, 100%); max-height: 80vh; overflow: auto; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+  .calendar-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .calendar-modal-header h3 { color: var(--gold); }
+  .calendar-modal-close { border: 0; background: transparent; color: var(--muted); font-size: 24px; cursor: pointer; }
+  .calendar-modal-market { padding: 10px 0; border-top: 1px solid var(--border); cursor: pointer; }
+  .calendar-modal-market:hover { color: var(--green); }
+  .calendar-modal-market small { display: block; margin-top: 3px; color: var(--muted); }
+  .calendar-market:hover { color: var(--green); }
+  .calendar-market.visited { opacity: .55; text-decoration: line-through; }
+  .calendar-market .market-meta { color: var(--muted); font-size: 11px; margin-top: 3px; }
+  @media (max-width: 900px) { .calendar-grid { grid-template-columns: 1fr; } }
+  .leaflet-popup-content { font-family: 'Inter', sans-serif; min-width: 200px; }
+  .leaflet-popup-content .p-name { font-weight: 700; font-size: 15px; }
+  .leaflet-popup-content .p-sub { font-size: 12px; color: #9ca3af; margin: 2px 0 6px; }
+  .leaflet-popup-content .p-dates { font-size: 12px; color: #34d399; font-weight: 600; }
+  .leaflet-popup-content .p-food { font-size: 12px; color: #9ca3af; font-style: italic; margin-top: 4px; }
+  .count { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background: var(--card); color: var(--text); border: 1px solid var(--border);
+  }
+  .leaflet-container .leaflet-control-zoom a {
+    background: var(--card); color: var(--text); border-color: var(--border);
+  }
+  .leaflet-container .leaflet-control-zoom a:hover { background: #1d2940; }
+  .leaflet-control-attribution {
+    background: rgba(11,18,32,.7) !important; color: var(--muted) !important;
+  }
+  .leaflet-control-attribution a { color: var(--muted) !important; }
+  @media (max-width: 800px) {
+    main { flex-direction: column-reverse; height: auto; }
+    #sidebar { width: 100%; max-height: 45vh; border-right: none; border-top: 1px solid var(--border); }
+    #map { height: 55vh; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="tree">🎄</div>
+  <div>
+    <h1>Europe's Best Christmas Markets</h1>
+    <p>Open-source map (Leaflet + Esri dark canvas WITH city labels, no API key) · 90 Europe markets + 17 Southern Germany, Season 2026/2027</p>
+  </div>
+</header>
+<div class="app-tabs">
+  <button id="map-tab" class="active">Map</button>
+  <button id="calendar-tab">Calendar</button>
+</div>
+<div id="calendar-modal" class="calendar-modal" hidden>
+  <div class="calendar-modal-card" role="dialog" aria-modal="true" aria-labelledby="calendar-modal-title">
+    <div class="calendar-modal-header">
+      <h3 id="calendar-modal-title"></h3>
+      <button id="calendar-modal-close" class="calendar-modal-close" aria-label="Close">&times;</button>
+    </div>
+    <div id="calendar-modal-list"></div>
+  </div>
+</div>
+<main>
+  <aside id="sidebar">
+    <input type="text" id="search" placeholder="🔍  Search markets, countries, treats...">
+    <div class="filters">
+      <button data-f="all" class="active" id="f-all">All</button>
+      <button data-f="todo" id="f-todo">To visit</button>
+      <button data-f="visited" id="f-visited">Visited</button>
+    </div>
+    <div class="progress">
+      <span id="prog">0 / 0 visited</span>
+      <div class="bar"><div id="bar" style="width:0%"></div></div>
+    </div>
+    <div class="sort-row">
+      <select id="sort">
+        <option value="rank">Sort by rank (#)</option>
+        <option value="alpha">Sort A–Z</option>
+        <option value="region">Sort by region</option>
+      </select>
+    </div>
+    <div class="count" id="count"></div>
+    <div id="list"></div>
+  </aside>
+  <div id="map"></div>
+  <section id="calendar" hidden></section>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="markets.js"></script>
+<script src="germany.js"></script>
+<script>
+const ICONS = {
+  "Germany & Austria classics": { c: "#d97706" },
+  "France & Alsace":            { c: "#2563eb" },
+  "Eastern Europe":             { c: "#16a34a" },
+  "Nordic & Benelux":           { c: "#dc2626" },
+  "Italy & Alps":               { c: "#a855f7" },
+  "Southern Europe":            { c: "#0d9488" },
+  "visited":                    { c: "#fbbf24" }
+};
+
+const TIER_COLORS = ["", "#fbbf24", "#34d399", "#60a5fa", "#94a3b8", "#64748b"];
+
+function tierOf(m) {
+  if (m.tier) return { n: m.tier, c: TIER_COLORS[m.tier] };
+  const rank = m.rank;
+  const n = rank <= 5 ? 1 : rank <= 12 ? 2 : rank <= 19 ? 3 : rank <= 24 ? 4 : 5;
+  return { n, c: TIER_COLORS[n] };
+}
+
+const EUROPE_MARKETS = [...MARKETS, ...GERM_MARKETS].reduce((markets, market) => {
+  const duplicate = markets.findIndex(candidate =>
+    Math.abs(candidate.lat - market.lat) < 0.01 &&
+    Math.abs(candidate.lng - market.lng) < 0.01
+  );
+  if (duplicate === -1 || tierOf(market).n < tierOf(markets[duplicate]).n) {
+    if (duplicate === -1) markets.push(market);
+    else markets[duplicate] = market;
+  }
+  return markets;
+}, []).sort((a, b) =>
+  (a.rank || 999) - (b.rank || 999) || a.name.localeCompare(b.name)
+).map((market, index) => ({
+  ...market,
+  tier: tierOf(market).n,
+  rank: index + 1
+}));
+
+const VIEWS = {
+  europe: { list: EUROPE_MARKETS, center: [49.5, 12.5], zoom: 5 }
+};
+let view = 'europe';
+let statusFilter = 'all';
+let sortBy = 'rank';
+let visited = new Set();
+let activeTab = 'map';
+function loadJSON(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+function saveState() { try { localStorage.setItem('xmasState', JSON.stringify({ view, sortBy, statusFilter })); } catch (e) {} }
+
+const s = loadJSON('xmasState') || {};
+if (VIEWS[s.view]) view = s.view;
+if (s.sortBy) sortBy = s.sortBy;
+if (s.statusFilter) statusFilter = s.statusFilter;
+
+const vSaved = loadJSON('xmasVisited');
+if (Array.isArray(vSaved)) visited = new Set(vSaved);
+
+const map = L.map('map').setView(VIEWS[view].center, VIEWS[view].zoom);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 16,
+  attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin &copy; OpenStreetMap contributors'
+}).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 16
+}).addTo(map);
+
+const layerGroup = L.layerGroup().addTo(map);
+const markerRecs = {};
+
+function dataList() { return VIEWS[view].list; }
+function isVisited(m) { return visited.has(m.name); }
+function filteredDataList() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  return dataList().filter(m =>
+    (statusFilter === 'visited' ? isVisited(m) :
+     statusFilter === 'todo' ? !isVisited(m) : true) &&
+    (!q || [m.name, m.city, m.country, m.region, m.food, m.note].join(' ').toLowerCase().includes(q))
+  );
+}
+
+function makeIcon(m) {
+  const v = isVisited(m);
+  const c = tierOf(m).c;
+  const inner = v ? '✓' : '🎄';
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:26px;height:26px;background:${c};border:2px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;">
+             <span style="transform:rotate(45deg);font-size:13px;color:#0b1220;">${inner}</span>
+           </div>`,
+    iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -24]
+  });
+}
+
+function popupHTML(m) {
+  const v = isVisited(m);
+  return `
+    <div class="p-name">${m.flag} ${m.name}${v ? ' <span class="p-done">✔</span>' : ''}</div>
+    <div class="p-sub">${m.city}, ${m.country} · ${m.region} · rank #${m.rank}</div>
+    ${m.trip ? `<div class="p-trip">🚆 from Munich: ${m.trip}</div>` : ''}
+    <div class="p-dates">📅 ${m.dates}</div>
+    <div class="p-food">🍴 ${m.food}</div>
+    <button class="visit-btn" data-name="${m.name}">${v ? 'Remove from visited' : 'Mark as visited'}</button>
+  `;
+}
+
+function rebuildMarkers() {
+  layerGroup.clearLayers();
+  Object.keys(markerRecs).forEach(k => delete markerRecs[k]);
+  filteredDataList().forEach(m => {
+    const marker = L.marker([m.lat, m.lng], { icon: makeIcon(m) }).bindPopup(popupHTML(m));
+    marker.addTo(layerGroup);
+    markerRecs[m.name] = marker;
+  });
+  map.setView(VIEWS[view].center, VIEWS[view].zoom);
+}
+
+function toggleVisit(m) {
+  visited.has(m.name) ? visited.delete(m.name) : visited.add(m.name);
+  localStorage.setItem('xmasVisited', JSON.stringify([...visited]));
+  rebuildMarkers();
+  updateProgress();
+  buildList();
+  if (activeTab === 'calendar') buildCalendar();
+}
+
+document.getElementById('map').addEventListener('click', e => {
+  const btn = e.target.closest('.visit-btn');
+  if (!btn) return;
+  const m = dataList().find(x => x.name === btn.dataset.name);
+  if (m) toggleVisit(m);
+});
+
+function buildList() {
+  const listEl = document.getElementById('list');
+  let sorted = filteredDataList().map(m => ({ m, marker: markerRecs[m.name] }));
+  if (sortBy === 'alpha')  sorted.sort((a, b) => a.m.name.localeCompare(b.m.name));
+  else if (sortBy === 'region') sorted.sort((a, b) => a.m.region.localeCompare(b.m.region) || (a.m.rank || 999) - (b.m.rank || 999));
+  else sorted.sort((a, b) => (a.m.rank || 999) - (b.m.rank || 999));
+
+  const filtered = sorted;
+
+  document.getElementById('count').textContent = `${filtered.length} of ${dataList().length} markets shown`;
+  listEl.innerHTML = filtered.map(({ m }, i) => {
+    const v = isVisited(m), t = tierOf(m);
+    return `
+      <div class="market ${v ? 'visited' : ''}" data-i="${i}">
+        <div class="name-row">
+          <span class="rank-badge t${t.n}">#${m.rank}</span>
+          <div class="name"><span class="flag">${m.flag}</span> ${m.name}${v ? ' <span class="v-tag">✓ visited</span>' : ''}</div>
+        </div>
+        <div class="sub">${m.city}, ${m.country} · ${m.region}${m.trip ? ' · 🚆 ' + m.trip : ''}</div>
+        <div class="dates">📅 ${m.dates}</div>
+      </div>`;
+  }).join('');
+
+  listEl.querySelectorAll('.market').forEach(el => {
+    el.addEventListener('click', () => {
+      const { m, marker } = filtered[+el.dataset.i];
+      map.setView([m.lat, m.lng], 14);
+      marker.openPopup();
+    });
+  });
+}
+
+function updateProgress() {
+  const cur = dataList();
+  const n = cur.filter(isVisited).length, total = cur.length;
+  document.getElementById('prog').textContent = `${n} / ${total} visited`;
+  document.getElementById('bar').style.width = `${Math.round(n / total * 100)}%`;
+}
+
+function marketDates(m) {
+  const text = m.dates.toLowerCase();
+  const monthNumbers = { nov: 11, dec: 12, jan: 1 };
+  const matches = [...text.matchAll(/(?:(early|mid|late)\s+)?(\d{1,2})?\s*(nov|dec|jan)/g)];
+  if (!matches.length) return null;
+  const endpoint = match => {
+    const month = monthNumbers[match[3]];
+    const day = Number(match[2]) || (match[1] === 'early' ? 7 : match[1] === 'mid' ? 15 : match[1] === 'late' ? 24 : 1);
+    return { month, day };
+  };
+  const start = endpoint(matches[0]);
+  const end = endpoint(matches[matches.length - 1]);
+  if (matches.length === 1) {
+    start.day = 1;
+    end.day = start.month === 11 ? 30 : start.month === 12 ? 31 : 31;
+  }
+  return { start, end };
+}
+
+function isMarketOpenOn(m, month, day) {
+  const range = marketDates(m);
+  if (!range) return false;
+  const value = month * 100 + day;
+  const start = range.start.month * 100 + range.start.day;
+  const end = range.end.month * 100 + range.end.day;
+  return start <= end ? value >= start && value <= end : value >= start || value <= end;
+}
+
+function buildCalendar() {
+  const months = ['november', 'december', 'january'];
+  const labels = { november: 'November', december: 'December', january: 'January' };
+  const monthNumbers = { november: 11, december: 12, january: 1 };
+  const daysInMonth = { november: 30, december: 31, january: 31 };
+  const weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  document.getElementById('calendar').innerHTML = `
+    <div class="calendar-title">Christmas markets · Season 2026/2027</div>
+    <div class="calendar-grid">${months.map(month => `
+      <section class="calendar-month">
+        <h3>${labels[month]}</h3>
+        <div class="calendar-days">${weekdays.map(day => `<div class="calendar-weekday">${day}</div>`).join('')}
+          ${Array.from({ length: (new Date(month === 'january' ? 2027 : 2026, monthNumbers[month] - 1, 1).getDay() + 6) % 7 }, () => '<div></div>').join('')}
+          ${Array.from({ length: daysInMonth[month] }, (_, i) => {
+            const day = i + 1;
+            const open = dataList().filter(m => !isVisited(m) && isMarketOpenOn(m, monthNumbers[month], day)).sort((a, b) => (a.rank || 999) - (b.rank || 999));
+            const visible = open[0];
+            const extra = open.slice(1);
+            return `<div class="calendar-day ${open.length ? 'has-markets' : ''}" data-month="${monthNumbers[month]}" data-day="${day}">
+              <div class="calendar-day-number">${day}</div>
+              ${visible ? `<div class="calendar-market" data-name="${visible.name}" title="${visible.name}">${visible.flag} ${visible.city}</div>` : ''}
+              ${extra.length ? `<div class="calendar-more">+${extra.length}</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </section>`).join('')}</div>`;
+  document.querySelectorAll('.calendar-day.has-markets').forEach(dayEl => {
+    dayEl.addEventListener('click', event => {
+      if (event.target.closest('.calendar-market')) return;
+      const month = Number(dayEl.dataset.month);
+      const day = Number(dayEl.dataset.day);
+      const markets = dataList().filter(m => !isVisited(m) && isMarketOpenOn(m, month, day))
+        .sort((a, b) => (a.rank || 999) - (b.rank || 999));
+      showCalendarModal(month, day, markets);
+    });
+  });
+  document.querySelectorAll('.calendar-market[data-name]').forEach(el => {
+    el.addEventListener('click', () => {
+      const m = dataList().find(item => item.name === el.dataset.name);
+      if (!m || !markerRecs[m.name]) return;
+      activeTab = 'map';
+      updateTabVisibility();
+      map.setView([m.lat, m.lng], 14);
+      markerRecs[m.name].openPopup();
+    });
+  });
+}
+
+function showCalendarModal(month, day, markets) {
+  const monthNames = { 11: 'November', 12: 'December', 1: 'January' };
+  document.getElementById('calendar-modal-title').textContent = `${monthNames[month]} ${day} · ${markets.length} markets`;
+  document.getElementById('calendar-modal-list').innerHTML = markets.slice(1).map(m => `
+    <div class="calendar-modal-market" data-name="${m.name}">
+      ${m.flag} ${m.name}
+      <small>${m.city}, ${m.country} · ${m.dates}</small>
+    </div>
+  `).join('') || '<div class="market-meta">No additional markets</div>';
+  document.getElementById('calendar-modal').hidden = false;
+  document.querySelectorAll('.calendar-modal-market[data-name]').forEach(el => {
+    el.addEventListener('click', () => {
+      const m = dataList().find(item => item.name === el.dataset.name);
+      if (!m || !markerRecs[m.name]) return;
+      closeCalendarModal();
+      activeTab = 'map';
+      updateTabVisibility();
+      map.setView([m.lat, m.lng], 14);
+      markerRecs[m.name].openPopup();
+    });
+  });
+}
+
+function closeCalendarModal() {
+  document.getElementById('calendar-modal').hidden = true;
+}
+
+function updateTabVisibility() {
+  const calendarActive = activeTab === 'calendar';
+  document.getElementById('sidebar').hidden = calendarActive;
+  document.getElementById('map').hidden = calendarActive;
+  document.getElementById('calendar').hidden = !calendarActive;
+  document.getElementById('map-tab').classList.toggle('active', !calendarActive);
+  document.getElementById('calendar-tab').classList.toggle('active', calendarActive);
+  if (calendarActive) buildCalendar();
+  else setTimeout(() => map.invalidateSize(), 0);
+}
+
+function switchView(v) {
+  if (v === view) return;
+  view = v;
+  saveState();
+  document.querySelectorAll('.list-switch button').forEach(b => b.classList.toggle('active', b.dataset.l === view));
+  rebuildMarkers();
+  buildList();
+  updateProgress();
+  if (activeTab === 'calendar') buildCalendar();
+}
+
+document.getElementById('search').addEventListener('input', () => {
+  rebuildMarkers();
+  buildList();
+});
+document.getElementById('map-tab').addEventListener('click', () => { activeTab = 'map'; updateTabVisibility(); });
+document.getElementById('calendar-tab').addEventListener('click', () => { activeTab = 'calendar'; updateTabVisibility(); });
+document.getElementById('calendar-modal-close').addEventListener('click', closeCalendarModal);
+document.getElementById('calendar-modal').addEventListener('click', event => {
+  if (event.target.id === 'calendar-modal') closeCalendarModal();
+});
+document.getElementById('sort').addEventListener('change', e => {
+  sortBy = e.target.value;
+  saveState();
+  buildList();
+});
+document.querySelectorAll('.list-switch button').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.l)));
+document.querySelectorAll('.filters button:not(.list-switch button)').forEach(btn => {
+  btn.addEventListener('click', () => {
+    statusFilter = btn.dataset.f;
+    saveState();
+    document.querySelectorAll('.filters button:not(.list-switch button)').forEach(b => b.classList.toggle('active', b === btn));
+    rebuildMarkers();
+    buildList();
+  });
+});
+
+rebuildMarkers();
+updateProgress();
+buildList();
+updateTabVisibility();
+</script>
+</body>
+</html>
