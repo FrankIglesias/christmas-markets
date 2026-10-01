@@ -100,10 +100,6 @@
   <div class="tree">🎄</div>
   <div>
     <h1>Europe's Best Christmas Markets</h1>
-    <p>
-      Open-source map (Leaflet + Esri dark canvas WITH city labels, no API key) · 90 Europe markets +
-      17 Southern Germany, Season 2026/2027
-    </p>
   </div>
 </header>
 
