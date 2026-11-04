@@ -1,18 +1,18 @@
-import type { SavedState, SortBy, StatusFilter } from './types'
+import type { SavedState, SortBy, StatusFilter } from './types';
 
 const STATE_KEY = 'xmasState'
 const VISITED_KEY = 'xmasVisited'
 
 function loadJSON<T>(key: string): T | null {
   try {
-    return JSON.parse(localStorage.getItem(key) || 'null') as T | null
+    return JSON.parse(localStorage.getItem(key) || 'null') as T | null;
   } catch {
-    return null
+    return null;
   }
 }
 
-const SORT_VALUES: SortBy[] = ['rank', 'alpha', 'region']
-const FILTER_VALUES: StatusFilter[] = ['all', 'todo', 'visited']
+const SORT_VALUES: SortBy[] = ['rank', 'alpha', 'region'];
+const FILTER_VALUES: StatusFilter[] = ['all', 'todo', 'visited'];
 
 /** Restore persisted filter state, ignoring anything unrecognised. */
 export function loadState(): SavedState {
@@ -27,20 +27,20 @@ export function loadState(): SavedState {
 
 export function saveState(state: SavedState): void {
   try {
-    localStorage.setItem(STATE_KEY, JSON.stringify(state))
+    localStorage.setItem(STATE_KEY, JSON.stringify(state));
   } catch {
     // Storage unavailable (private mode / quota) — filtering still works in-memory.
   }
 }
 
 export function loadVisited(): Set<string> {
-  const saved = loadJSON<unknown>(VISITED_KEY)
-  return new Set(Array.isArray(saved) ? saved.filter((n): n is string => typeof n === 'string') : [])
+  const saved = loadJSON<unknown>(VISITED_KEY);
+  return new Set(Array.isArray(saved) ? saved.filter((n): n is string => typeof n === 'string') : []);
 }
 
 export function saveVisited(visited: ReadonlySet<string>): void {
   try {
-    localStorage.setItem(VISITED_KEY, JSON.stringify([...visited]))
+    localStorage.setItem(VISITED_KEY, JSON.stringify([...visited]));
   } catch {
     // Ignore write failures.
   }

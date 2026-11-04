@@ -1,4 +1,4 @@
-import type { Market } from '../types'
+import type { Market } from '../types';
 
 export const GERM_MARKETS: Market[] = [
   // Tier 1 — Unmissable
@@ -93,4 +93,4 @@ export const GERM_MARKETS: Market[] = [
     rank: 17, tier: 4, trip: "~1.5 h by train",
     dates: "Advent weekends, late Nov – 20 Dec 2026", food: "Glühwein & Dampfnudeln",
     note: "Cozy lakeside market facing the Alps; modest but scenic." }
-]
+];

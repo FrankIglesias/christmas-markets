@@ -1,31 +1,31 @@
 <script lang="ts">
-  import type { ResolvedMarket } from '../types'
-  import { marketsOpenOn } from '../markets'
+  import type { ResolvedMarket } from '../types';
+  import { marketsOpenOn } from '../markets';
 
   interface Props {
-    markets: ResolvedMarket[]
+    markets: ResolvedMarket[];
     visited: ReadonlySet<string>
-    onSelectMarket: (market: ResolvedMarket) => void
-    onOpenDay: (month: number, day: number, markets: ResolvedMarket[]) => void
+    onSelectMarket: (market: ResolvedMarket) => void;
+    onOpenDay: (month: number, day: number, markets: ResolvedMarket[]) => void;
   }
 
-  let { markets, visited, onSelectMarket, onOpenDay }: Props = $props()
+  let { markets, visited, onSelectMarket, onOpenDay }: Props = $props();
 
   const MONTHS = [
     { key: 'november', label: 'November', number: 11, days: 30, year: 2026 },
     { key: 'december', label: 'December', number: 12, days: 31, year: 2026 },
     { key: 'january', label: 'January', number: 1, days: 31, year: 2027 },
-  ] as const
+  ] as const;
 
-  const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+  const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
   /** Monday-first offset so day 1 lands under the correct column. */
   function leadingBlanks(month: (typeof MONTHS)[number]): number {
-    return (new Date(month.year, month.number - 1, 1).getDay() + 6) % 7
+    return (new Date(month.year, month.number - 1, 1).getDay() + 6) % 7;
   }
 
   function openOn(month: (typeof MONTHS)[number], day: number): ResolvedMarket[] {
-    return marketsOpenOn(markets, visited, month.number, day)
+    return marketsOpenOn(markets, visited, month.number, day);
   }
 </script>
 
@@ -58,8 +58,8 @@
               onclick={() => open.length > 0 && onOpenDay(month.number, day, open)}
               onkeydown={(e) => {
                 if (open.length > 0 && (e.key === 'Enter' || e.key === ' ')) {
-                  e.preventDefault()
-                  onOpenDay(month.number, day, open)
+                  e.preventDefault();
+                  onOpenDay(month.number, day, open);
                 }
               }}
             >
@@ -72,14 +72,14 @@
                   tabindex="0"
                   title={visible.name}
                   onclick={(e) => {
-                    e.stopPropagation()
-                    onSelectMarket(visible)
+                    e.stopPropagation();
+                    onSelectMarket(visible);
                   }}
                   onkeydown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      onSelectMarket(visible)
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onSelectMarket(visible);
                     }
                   }}
                 >
