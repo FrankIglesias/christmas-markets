@@ -3,6 +3,7 @@
   import Sidebar from './lib/components/Sidebar.svelte'
   import CalendarView from './lib/components/CalendarView.svelte'
   import DayModal from './lib/components/DayModal.svelte'
+  import Snowfall from './lib/components/Snowfall.svelte'
   import { ALL_MARKETS, filterMarkets, sortMarkets } from './lib/markets'
   import { loadState, loadVisited, saveState, saveVisited } from './lib/storage'
   import type { ResolvedMarket, SortBy, StatusFilter, Tab } from './lib/types'
@@ -102,6 +103,8 @@
     <h1>Europe's Best Christmas Markets</h1>
   </div>
 </header>
+
+<Snowfall />
 
 <div class="app-tabs">
   <button class:active={activeTab === 'map'} onclick={() => switchTab('map')}>Map</button>
