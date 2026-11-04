@@ -31,6 +31,9 @@ Then open the local URL printed by Vite.
 | `npm run build`   | Produce a production build in `dist/`         |
 | `npm run preview` | Serve the production build locally            |
 | `npm run check`   | Type-check with `svelte-check` and `tsc`      |
+| `npm test`        | Run the Vitest test suite                      |
+| `npm run test:watch` | Run Vitest in watch mode                    |
+| `npm run test:ui` | Open the Vitest UI                             |
 
 ## Tech
 
