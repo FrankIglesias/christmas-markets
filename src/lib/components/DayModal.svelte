@@ -1,13 +1,13 @@
 <script lang="ts">
-  import type { ResolvedMarket } from '../types'
+  import type { ResolvedMarket } from '../types';
 
   interface Props {
     day: { month: number; day: number; markets: ResolvedMarket[] }
-    onClose: () => void
-    onSelectMarket: (market: ResolvedMarket) => void
+    onClose: () => void;
+    onSelectMarket: (market: ResolvedMarket) => void;
   }
 
-  let { day, onClose, onSelectMarket }: Props = $props()
+  let { day, onClose, onSelectMarket }: Props = $props();
 
   const MONTH_NAMES: Record<number, string> = {
     11: 'November',
@@ -17,13 +17,13 @@
 
   const title = $derived(
     `${MONTH_NAMES[day.month] ?? day.month} ${day.day} · ${day.markets.length} markets`,
-  )
+  );
 
   // The first market is already shown on the calendar cell itself.
-  const additional = $derived(day.markets.slice(1))
+  const additional = $derived(day.markets.slice(1));
 
   function onKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape') onClose()
+    if (event.key === 'Escape') onClose();
   }
 </script>
 
@@ -32,7 +32,7 @@
 <div
   class="calendar-modal"
   onclick={(e) => {
-    if (e.target === e.currentTarget) onClose()
+    if (e.target === e.currentTarget) onClose();
   }}
   role="presentation"
 >
@@ -51,8 +51,8 @@
           onclick={() => onSelectMarket(m)}
           onkeydown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              onSelectMarket(m)
+              e.preventDefault();
+              onSelectMarket(m);
             }
           }}
         >

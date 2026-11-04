@@ -1,20 +1,20 @@
 <script lang="ts">
-  import type { ResolvedMarket, SortBy, StatusFilter } from '../types'
-  import { tierOf } from '../markets'
+  import type { ResolvedMarket, SortBy, StatusFilter } from '../types';
+  import { tierOf } from '../markets';
 
   interface Props {
-    markets: ResolvedMarket[]
-    total: number
-    query: string
-    statusFilter: StatusFilter
-    sortBy: SortBy
+    markets: ResolvedMarket[];
+    total: number;
+    query: string;
+    statusFilter: StatusFilter;
+    sortBy: SortBy;
     visited: ReadonlySet<string>
     /** Visited count across the full dataset, not just the filtered list. */
-    visitedCount: number
-    onQueryChange: (query: string) => void
-    onFilterChange: (filter: StatusFilter) => void
-    onSortChange: (sort: SortBy) => void
-    onSelect: (market: ResolvedMarket) => void
+    visitedCount: number;
+    onQueryChange: (query: string) => void;
+    onFilterChange: (filter: StatusFilter) => void;
+    onSortChange: (sort: SortBy) => void;
+    onSelect: (market: ResolvedMarket) => void;
   }
 
   let {
@@ -29,13 +29,13 @@
     onFilterChange,
     onSortChange,
     onSelect,
-  }: Props = $props()
+  }: Props = $props();
 
   const FILTERS: { value: StatusFilter; label: string }[] = [
     { value: 'all', label: 'All' },
     { value: 'todo', label: 'To visit' },
     { value: 'visited', label: 'Visited' },
-  ]
+  ];
 </script>
 
 <aside id="sidebar">
@@ -91,8 +91,8 @@
         onclick={() => onSelect(m)}
         onkeydown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onSelect(m)
+            e.preventDefault();
+            onSelect(m);
           }
         }}
       >

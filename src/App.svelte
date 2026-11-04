@@ -1,61 +1,61 @@
 <script lang="ts">
-  import MapView from './lib/components/MapView.svelte'
-  import Sidebar from './lib/components/Sidebar.svelte'
-  import CalendarView from './lib/components/CalendarView.svelte'
-  import DayModal from './lib/components/DayModal.svelte'
-  import Snowfall from './lib/components/Snowfall.svelte'
-  import { ALL_MARKETS, filterMarkets, sortMarkets } from './lib/markets'
-  import { loadState, loadVisited, saveState, saveVisited } from './lib/storage'
-  import type { ResolvedMarket, SortBy, StatusFilter, Tab } from './lib/types'
+  import MapView from './lib/components/MapView.svelte';
+  import Sidebar from './lib/components/Sidebar.svelte';
+  import CalendarView from './lib/components/CalendarView.svelte';
+  import DayModal from './lib/components/DayModal.svelte';
+  import Snowfall from './lib/components/Snowfall.svelte';
+  import { ALL_MARKETS, filterMarkets, sortMarkets } from './lib/markets';
+  import { loadState, loadVisited, saveState, saveVisited } from './lib/storage';
+  import type { ResolvedMarket, SortBy, StatusFilter, Tab } from './lib/types';
 
-  const initial = loadState()
-  const initialVisited = loadVisited()
+  const initial = loadState();
+  const initialVisited = loadVisited();
 
-  let query = $state('')
-  let statusFilter = $state<StatusFilter>(initial.statusFilter)
-  let sortBy = $state<SortBy>(initial.sortBy)
-  let visited = $state<Set<string>>(initialVisited)
-  let activeTab = $state<Tab>('map')
+  let query = $state('');
+  let statusFilter = $state<StatusFilter>(initial.statusFilter);
+  let sortBy = $state<SortBy>(initial.sortBy);
+  let visited = $state<Set<string>>(initialVisited);
+  let activeTab = $state<Tab>('map');
 
   /** Bumped to force marker rebuilds (mirrors the original rebuildMarkers call). */
-  let resetToken = $state(0)
-  let focusRequest = $state<{ lat: number; lng: number; zoom: number; name?: string } | null>(null)
+  let resetToken = $state(0);
+  let focusRequest = $state<{ lat: number; lng: number; zoom: number; name?: string } | null>(null);
   let dayModal = $state<{
-    month: number
-    day: number
-    markets: ResolvedMarket[]
-  } | null>(null)
+    month: number;
+    day: number;
+    markets: ResolvedMarket[];
+  } | null>(null);
 
-  let mapView: ReturnType<typeof MapView> | undefined = $state()
+  let mapView: ReturnType<typeof MapView> | undefined = $state();
 
   const filtered = $derived(
     sortMarkets(filterMarkets(ALL_MARKETS, visited, statusFilter, query), sortBy),
-  )
+  );
 
-  const visitedCount = $derived(ALL_MARKETS.filter((m) => visited.has(m.name)).length)
+  const visitedCount = $derived(ALL_MARKETS.filter((m) => visited.has(m.name)).length);
 
   // Persist filter state whenever it changes.
   $effect(() => {
-    saveState({ sortBy, statusFilter })
-  })
+    saveState({ sortBy, statusFilter });
+  });
 
   function toggleVisit(market: ResolvedMarket) {
-    const next = new Set(visited)
-    if (next.has(market.name)) next.delete(market.name)
-    else next.add(market.name)
-    visited = next
-    saveVisited(next)
+    const next = new Set(visited);
+    if (next.has(market.name)) next.delete(market.name);
+    else next.add(market.name);
+    visited = next;
+    saveVisited(next);
   }
 
   function handleQueryChange(value: string) {
-    query = value
+    query = value;
     // The original reset the viewport on every filter/search change.
-    resetToken += 1
+    resetToken += 1;
   }
 
   function handleFilterChange(filter: StatusFilter) {
-    statusFilter = filter
-    resetToken += 1
+    statusFilter = filter;
+    resetToken += 1;
   }
 
   /** Jump to a market on the map, e.g. from the list or the calendar. */
@@ -66,13 +66,13 @@
 
   /** Same, but also dismisses the day modal we were launched from. */
   function selectMarketFromCalendar(market: ResolvedMarket) {
-    closeDay()
-    selectMarket(market)
+    closeDay();
+    selectMarket(market);
   }
 
   function selectByName(name: string) {
-    const market = ALL_MARKETS.find((m) => m.name === name)
-    if (market) toggleVisit(market)
+    const market = ALL_MARKETS.find((m) => m.name === name);
+    if (market) toggleVisit(market);
   }
 
   function openDay(month: number, day: number, markets: ResolvedMarket[]) {
@@ -80,19 +80,19 @@
   }
 
   function closeDay() {
-    dayModal = null
+    dayModal = null;
   }
 
   // The original registered the visit handler directly on the map container.
   $effect(() => {
-    mapView?.registerVisitHandler(selectByName)
-  })
+    mapView?.registerVisitHandler(selectByName);
+  });
 
   function switchTab(tab: Tab) {
-    activeTab = tab
+    activeTab = tab;
     if (tab === 'map') {
       // Container was hidden; Leaflet needs a nudge once visible again.
-      setTimeout(() => mapView?.invalidateSize(), 0)
+      setTimeout(() => mapView?.invalidateSize(), 0);
     }
   }
 </script>
@@ -109,7 +109,7 @@
 <div class="app-tabs">
   <button class:active={activeTab === 'map'} onclick={() => switchTab('map')}>Map</button>
   <button class:active={activeTab === 'calendar'} onclick={() => switchTab('calendar')}>
-    Calendar
+    Calendar;
   </button>
 </div>
 

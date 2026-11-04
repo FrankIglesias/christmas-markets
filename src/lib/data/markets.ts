@@ -1,4 +1,4 @@
-import type { Market } from '../types'
+import type { Market } from '../types';
 
 export const MARKETS: Market[] = [
   // ── Germany & Austria classics ─────────────────────────────────────────
@@ -461,4 +461,4 @@ export const MARKETS: Market[] = [
     lat: 51.0543, lng: 3.7250, region: "Nordic & Benelux",
     dates: "Dec 2026 (TBC)", food: "Glühwein & cuberdons",
     note: "Charming canal-side setting; smaller and quieter than Bruges." },
-]
+];
